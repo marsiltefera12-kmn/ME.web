@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AXIOM Academic System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-core: #050505;
+      --bg-surface: #0a0a0a;
+      --glass: rgba(20, 20, 20, 0.6);
+      --border: rgba(255, 255, 255, 0.06);
+      --accent: #00ffaa; /* Cyber Green */
+      --accent-dim: rgba(0, 255, 170, 0.1);
+      --secondary: #ffffff;
+      --text: #e0e0e0;
+      --muted: #666;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-core);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid Background */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -2;
+    }
+
+    /* Animated Glow Orbs */
+    .glow-orb {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.15;
+      background: var(--accent);
+      pointer-events: none;
+      z-index: -1;
+      transition: all 2s ease;
+    }
+
+    /* Card Styles */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Landing Nav Cards */
+    .nav-card {
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .nav-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, transparent, rgba(0, 255, 170, 0.05), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+
+    .nav-card:hover::before {
+      transform: translateX(100%);
+    }
+
+    .nav-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-dim);
+    }
+
+    /* Inputs */
+    .input-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: white;
+      width: 100%;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+
+    .input-box:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    select.input-box {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300ffaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px;
+    }
+
+    /* Buttons */
+    .btn-main {
+      background: var(--accent);
+      color: #000;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-main:hover {
+      box-shadow: 0 0 20px var(--accent-glow, #00ffaa);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--muted);
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* Table */
+    .data-row {
+      display: grid;
+      grid-template-columns: 40px 1fr 80px 60px;
+      gap: 16px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .data-row:last-child { border-bottom: none; }
+    .data-row:hover { background: rgba(255,255,255,0.01); }
+
+    /* Result Metric */
+    .metric-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .metric-card.visible::after { opacity: 1; }
+    .metric-card.pass { border-color: rgba(0, 255, 170, 0.2); }
+    .metric-card.fail { border-color: rgba(255, 51, 51, 0.2); }
+    .metric-card.fail::after { background: #ff3333; }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up {
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* Save Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .modal.active { opacity: 1; pointer-events: auto; }
+  </style>
+</head>
+<body>
+
+  <div class="grid-bg"></div>
+  <!-- Dynamic Orb -->
+  <div id="orb" class="glow-orb" style="top: -100px; left: -100px;"></div>
+
+  <div class="max-w-4xl mx-auto px-4 py-12 relative z-10">
+    
+    <!-- LANDING PAGE -->
+    <div id="landing" class="page active">
+      <header class="text-center mb-20 fade-up">
+        <div class="inline-block px-3 py-1 border border-white/10 rounded-full text-xs text-white/50 mb-6 tracking-widest">
+          SYSTEM ONLINE
+        </div>
+        <h1 class="text-5xl md:text-7xl font-bold text-white tracking-tighter mb-4">
+          AXIOM<span class="text-[color:var(--accent)]">.</span>EDU
+        </h1>
+        <p class="text-gray-400 text-lg max-w-md mx-auto">
+          Advanced academic performance analysis & reporting engine.
+        </p>
+      </header>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Average Tool -->
+        <div class="card nav-card p-8 fade-up" style="animation-delay: 0.1s" onclick="navigate('avg')">
+          <div class="flex justify-between items-start mb-8">
+            <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-white/5 text-[color:var(--accent)]">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+            </div>
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+          </div>
+          <h2 class="text-xl font-semibold text-white mb-2">Average Calculator</h2>
+          <p class="text-sm text-gray-500">Standard marks analysis. Total, Average, and Pass/Fail status determination.</p>
+        </div>
+
+        <!-- GPA Tool -->
+        <div class="card nav-card p-8 fade-up" style="animation-delay: 0.2s" onclick="navigate('gpa')">
+          <div class="flex justify-between items-start mb-8">
+            <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-white/5 text-[color:var(--accent)]">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            </div>
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+          </div>
+          <h2 class="text-xl font-semibold text-white mb-2">GPA Calculator</h2>
+          <p class="text-sm text-gray-500">Credit-based Grade Point Average calculation with honors determination.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- AVERAGE PAGE -->
+    <div id="pageAvg" class="page">
+      <button onclick="navigate('landing')" class="flex items-center gap-2 text-gray-500 text-sm mb-8 hover:text-white transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Back
+      </button>
+
+      <div class="card p-8 mb-8 fade-up">
+        <div class="mb-8">
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Student Name</label>
+          <input type="text" id="avgName" class="input-box" placeholder="Enter Name">
+        </div>
+
+        <div class="border-b border-white/5 pb-2 mb-2 flex justify-between text-xs text-gray-600 uppercase tracking-wider px-1">
+          <span>Subject</span>
+          <span class="mr-12">Marks</span>
+        </div>
+
+        <div id="avgList"></div>
+
+        <div class="mt-8 pt-6 border-t border-white/5 flex justify-between items-center">
+          <button onclick="addAvgRow()" class="btn-ghost text-sm flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add Subject
+          </button>
+          <button onclick="calcAvg()" class="btn-main">Analyze</button>
+        </div>
+      </div>
+
+      <div id="avgResults" class="hidden space-y-6"></div>
+    </div>
+
+    <!-- GPA PAGE -->
+    <div id="pageGpa" class="page">
+      <button onclick="navigate('landing')" class="flex items-center gap-2 text-gray-500 text-sm mb-8 hover:text-white transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Back
+      </button>
+
+      <div class="card p-8 mb-8 fade-up">
+        <div class="mb-6">
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Student Name</label>
+          <input type="text" id="gpaName" class="input-box" placeholder="Enter Name">
+        </div>
+
+        <!-- Friendly Guide -->
+        <div class="mb-6 p-4 rounded-lg border border-[color:var(--accent)]/20 bg-[color:var(--accent-dim)] text-sm">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-[color:var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="text-gray-300">
+              <strong class="text-white block">How to use:</strong>
+              <span class="text-xs opacity-75">Enter Credit Hours (1-4) and select the Grade. The system calculates the rest.</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="gpaList"></div>
+
+        <div class="mt-8 pt-6 border-t border-white/5 flex justify-between items-center">
+          <button onclick="addGpaRow()" class="btn-ghost text-sm flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add Course
+          </button>
+          <button onclick="calcGpa()" class="btn-main">Calculate</button>
+        </div>
+      </div>
+
+      <div id="gpaResults" class="hidden space-y-6"></div>
+    </div>
+
+  </div>
+
+  <!-- Permission Modal -->
+  <div id="modal" class="modal">
+    <div class="card p-8 w-full max-w-sm mx-4 text-center">
+      <div class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center mx-auto mb-4 text-[color:var(--accent)]">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+      </div>
+      <h3 class="text-lg font-bold mb-2">Save Report</h3>
+      <p class="text-gray-400 text-sm mb-6">Permission required to save file to your device.</p>
+      <div class="flex gap-3 justify-center">
+        <button onclick="closeModal()" class="btn-ghost">Cancel</button>
+        <button onclick="confirmSave()" class="btn-main">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Interaction & Navigation ---
+    const orb = document.getElementById('orb');
+    document.addEventListener('mousemove', (e) => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const x = e.clientX;
+      const y = e.clientY;
+      // Move orb slightly towards mouse
+      orb.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px)`;
+    });
+
+    function navigate(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById(pageId === 'landing' ? 'landing' : `page${pageId.charAt(0).toUpperCase() + pageId.slice(1)}`);
+      target.classList.add('active');
+      if (pageId === 'avg') initAvg();
+      if (pageId === 'gpa') initGpa();
+    }
+
+    // --- Average Logic ---
+    let avgItems = [];
+    let avgId = 1;
+
+    function getGrade(m) {
+      if (m >= 90) return 'A+';
+      if (m >= 80) return 'A';
+      if (m >= 70) return 'B';
+      if (m >= 60) return 'C';
+      if (m >= 50) return 'D';
+      return 'F';
+    }
+
+    function initAvg() {
+      avgItems = [
+        { id: avgId++, name: 'Mathematics', val: '' },
+        { id: avgId++, name: 'English', val: '' },
+        { id: avgId++, name: 'Chemistry', val: '' },
+        { id: avgId++, name: 'Physics', val: '' },
+        { id: avgId++, name: 'IT', val: '' },
+        { id: avgId++, name: 'Biology', val: '' }
+      ];
+      renderAvg();
+    }
+
+    function renderAvg() {
+      const container = document.getElementById('avgList');
+      container.innerHTML = '';
+      avgItems.forEach(item => {
+        const val = parseFloat(item.val);
+        const g = (!isNaN(val) && val >= 0 && val <= 100) ? getGrade(val) : '-';
+        
+        const div = document.createElement('div');
+        div.className = 'data-row';
+        div.innerHTML = `
+          <button onclick="delAvg(${item.id})" class="text-gray-600 hover:text-red-500 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+          <input type="text" value="${item.name}" onchange="updateAvgName(${item.id}, this.value)" class="input-box border-none bg-transparent p-0">
+          <input type="number" id="avgVal-${item.id}" value="${item.val}" oninput="updateAvgVal(${item.id}, this.value)" placeholder="0" class="input-box w-20 text-center py-2 px-0">
+          <span id="avgG-${item.id}" class="font-mono text-sm text-right ${g !== '-' ? 'text-[color:var(--accent)]' : 'text-gray-600'}">${g}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function updateAvgName(id, name) { const i = avgItems.find(x => x.id === id); if(i) i.name = name; }
+    function updateAvgVal(id, val) { 
+      const i = avgItems.find(x => x.id === id); 
+      if(i) i.val = val; 
+      const el = document.getElementById(`avgG-${id}`);
+      const num = parseFloat(val);
+      if (!isNaN(num) && num >= 0 && num <= 100) {
+        el.textContent = getGrade(num);
+        el.className = 'font-mono text-sm text-right text-[color:var(--accent)]';
+      } else {
+        el.textContent = '-';
+        el.className = 'font-mono text-sm text-right text-gray-600';
+      }
+    }
+    function addAvgRow() { avgItems.push({ id: avgId++, name: 'Subject', val: '' }); renderAvg(); }
+    function delAvg(id) { if(avgItems.length <= 1) return; avgItems = avgItems.filter(x => x.id !== id); renderAvg(); }
+
+    function calcAvg() {
+      let total = 0;
+      let valid = true;
+      const data = [];
+
+      avgItems.forEach(item => {
+        const v = parseFloat(item.val);
+        const inp = document.getElementById(`avgVal-${item.id}`);
+        if(isNaN(v) || v < 0 || v > 100) {
+          valid = false;
+          inp.style.borderColor = '#ff3333';
+        } else {
+          inp.style.borderColor = 'var(--border)';
+          total += v;
+          data.push({ ...item, num: v, grade: getGrade(v) });
+        }
+      });
+
+      if(!valid) return;
+
+      const avg = total / avgItems.length;
+      const pass = avg >= 50;
+
+      const section = document.getElementById('avgResults');
+      section.classList.remove('hidden');
+      section.innerHTML = `
+        <div class="grid grid-cols-3 gap-4 fade-up">
+          <div class="metric-card visible pass">
+            <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Marks</div>
+            <div class="text-3xl font-bold text-white">${total} <span class="text-lg text-gray-500">/ ${avgItems.length * 100}</span></div>
+          </div>
+          <div class="metric-card visible pass" style="transition-delay: 0.1s">
+            <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Average</div>
+            <div class="text-3xl font-bold text-[color:var(--accent)]">${avg.toFixed(2)}</div>
+          </div>
+          <div class="metric-card visible ${pass ? 'pass' : 'fail'}" style="transition-delay: 0.2s">
+            <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Status</div>
+            <div class="text-3xl font-bold ${pass ? 'text-[color:var(--accent)]' : 'text-red-500'}">${pass ? 'PASS' : 'FAIL'}</div>
+          </div>
+        </div>
+        
+        <div class="card p-6 mt-6 fade-up" style="animation-delay: 0.3s">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold text-white">Report Data</h3>
+            <button onclick="askSave('avg')" class="btn-ghost text-xs py-2 px-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              Save
+            </button>
+          </div>
+          <div class="space-y-2 text-sm">
+            ${data.map(d => `
+              <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                <span class="text-gray-400">${d.name}</span>
+                <div class="flex gap-4">
+                  <span class="font-mono text-white">${d.num}</span>
+                  <span class="font-mono text-[color:var(--accent)]">${d.grade}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="mt-6 text-center text-[10px] text-gray-600 font-mono tracking-widest">
+            GENERATED BY AXIOM SYSTEM
+          </div>
+        </div>
+      `;
+      window.avgData = { name: document.getElementById('avgName').value || 'Student', total, max: avgItems.length * 100, avg: avg.toFixed(2), status: pass ? 'PASS' : 'FAIL', items: data };
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // --- GPA Logic ---
+    let gpaItems = [];
+    let gpaId = 1;
+    const points = { 'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7, 'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'F': 0.0 };
+
+    function initGpa() {
+      gpaItems = [
+        { id: gpaId++, name: 'Course 1', credits: 3, grade: 'A' },
+        { id: gpaId++, name: 'Course 2', credits: 3, grade: 'B' }
+      ];
+      renderGpa();
+    }
+
+    function renderGpa() {
+      const container = document.getElementById('gpaList');
+      container.innerHTML = '';
+      
+      gpaItems.forEach(item => {
+        const opts = Object.keys(points).map(g => `<option value="${g}" ${item.grade === g ? 'selected' : ''}>${g}</option>`).join('');
+        const div = document.createElement('div');
+        div.className = 'data-row';
+        div.style.gridTemplateColumns = '40px 1fr 60px 80px';
+        div.innerHTML = `
+          <button onclick="delGpa(${item.id})" class="text-gray-600 hover:text-red-500 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+          <input type="text" value="${item.name}" onchange="updateGpaName(${item.id}, this.value)" class="input-box border-none bg-transparent p-0">
+          <input type="number" id="gpaCred-${item.id}" value="${item.cred}" onchange="updateGpaCred(${item.id}, this.value)" class="input-box w-14 text-center py-2 px-0">
+          <select id="gpaGrade-${item.id}" onchange="updateGpaGrade(${item.id}, this.value)" class="input-box py-2">${opts}</select>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function updateGpaName(id, val) { const i = gpaItems.find(x => x.id === id); if(i) i.name = val; }
+    function updateGpaCred(id, val) { const i = gpaItems.find(x => x.id === id); if(i) i.cred = parseFloat(val) || 0; }
+    function updateGpaGrade(id, val) { const i = gpaItems.find(x => x.id === id); if(i) i.grade = val; }
+    
+    function addGpaRow() { gpaItems.push({ id: gpaId++, name: 'Course', credits: 3, grade: 'C' }); renderGpa(); }
+    function delGpa(id) { if(gpaItems.length <= 1) return; gpaItems = gpaItems.filter(x => x.id !== id); renderGpa(); }
+
+    function calcGpa() {
+      let totalCred = 0;
+      let totalPts = 0;
+      const data = [];
+
+      gpaItems.forEach(item => {
+        const c = parseFloat(item.cred) || 0;
+        const p = points[item.grade] || 0;
+        totalCred += c;
+        totalPts += (c * p);
+        data.push({ ...item, pts: p });
+      });
+
+      const gpa = totalCred > 0 ? (totalPts / totalCred) : 0;
+      let standing = 'Probation';
+      if(gpa >= 3.7) standing = 'Summa Cum Laude';
+      else if(gpa >= 3.3) standing = 'Magna Cum Laude';
+      else if(gpa >= 3.0) standing = 'Cum Laude';
+      else if(gpa >= 2.0) standing = 'Good Standing';
+
+      const section = document.getElementById('gpaResults');
+      section.classList.remove('hidden');
+      section.innerHTML = `
+        <div class="card p-8 text-center fade-up">
+           <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Grade Point Average</div>
+           <div class="text-6xl font-bold text-white my-2">${gpa.toFixed(2)}</div>
+           <div class="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-gray-400 mt-2">${standing}</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mt-4 fade-up" style="animation-delay: 0.1s">
+           <div class="metric-card visible pass">
+             <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Credits</div>
+             <div class="text-3xl font-bold text-white">${totalCred}</div>
+           </div>
+           <div class="metric-card visible pass">
+             <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Points</div>
+             <div class="text-3xl font-bold text-white">${totalPts.toFixed(1)}</div>
+           </div>
+        </div>
+
+        <div class="card p-6 mt-6 fade-up" style="animation-delay: 0.2s">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold text-white">Breakdown</h3>
+            <button onclick="askSave('gpa')" class="btn-ghost text-xs py-2 px-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              Save
+            </button>
+          </div>
+          <div class="space-y-2 text-sm">
+            ${data.map(d => `
+              <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                <span class="text-gray-400">${d.name}</span>
+                <div class="flex gap-3 items-center">
+                  <span class="text-gray-500">${d.cred} Crd</span>
+                  <span class="font-mono text-white w-8 text-center">${d.grade}</span>
+                  <span class="font-mono text-[color:var(--accent)] w-8 text-right">${d.pts.toFixed(1)}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+      window.gpaData = { 
+        name: document.getElementById('gpaName').value || 'Student', 
+        gpa: gpa.toFixed(2), 
+        standing,
+        credits: totalCred,
+        items: data 
+      };
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // --- Save Logic ---
+    let saveType = null;
+
+    function askSave(type) {
+      saveType = type;
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('active');
+    }
+
+    function confirmSave() {
+      if(saveType === 'avg') {
+        const d = window.avgData;
+        let text = `ACADEMIC REPORT (AXIOM)\n------------------------\nStudent: ${d.name}\nAverage: ${d.avg}\nStatus: ${d.status}\n\nSubjects:\n`;
+        d.items.forEach(i => text += `${i.name}: ${i.num} (${i.grade})\n`);
+        downloadFile(text, `Report_${d.name}.txt`);
+      } else if(saveType === 'gpa') {
+        const d = window.gpaData;
+        let text = `GPA REPORT (AXIOM)\n-------------------\nStudent: ${d.name}\nGPA: ${d.gpa}\nStanding: ${d.standing}\n\nCourses:\n`;
+        d.items.forEach(i => text += `${i.name} | ${i.cred} Crd | ${i.grade} (${i.pts})\n`);
+        downloadFile(text, `GPA_${d.name}.txt`);
+      }
+      closeModal();
+    }
+
+    function downloadFile(text, name) {
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
